@@ -18,8 +18,10 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/communitySharing',
-      name: 'communitySharing',
+      // path: '/communitySharing',
+      // name: 'communitySharing',
+      path: '/fx',
+      name: 'fx',
       component: ()=>import('../views/communitySharing/index.vue')
     },
   ]

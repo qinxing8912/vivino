@@ -8,6 +8,7 @@ import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base:'/vivino/',
   // plugins: [vue()],
   plugins: [
     vue(),
@@ -24,10 +25,10 @@ export default defineConfig({
   server: {
     // port: 3000,//端口号
     // strictPort: true,//是否是严格的端口号，如果true，端口号被占用的情况下，vite会退出
-    // host: 'localhost',
+    host: '192.168.0.49',
     // cors: true,//为开发服务器配置 CORS , 默认启用并允许任何源
     // https: false,//是否支持http2 如果配置成true 会打开https://localhost:3001/xxx;
-    open: true,//是否自动打开浏览器
+    //open: true,//是否自动打开浏览器
     // 反向代理 跨域配置
     proxy: {
         '/app-api': {

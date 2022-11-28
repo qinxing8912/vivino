@@ -1,82 +1,75 @@
 <template>
     <div class="communitySharing" @click="openMask">
-        <div class="suckTop">
-            <div class="Sleft">
-                <img src="@/assets/communitySharing/logo.png" alt="">
+        <div class="main" v-if="userInfo!==''&&userInfo!==undefined&&userInfo!==null">
+            <div class="suckTop">
+                <div class="Sleft">
+                    <img src="@/assets/communitySharing/logo.png" alt="">
+                </div>
+                <div class="Scenter">
+                    <p class="SCtop">唯唯诺App</p>
+                    <p class="SCbot">让您成为聚会上更懂酒的人</p>
+                </div>
+                <div class="Sright">打开App</div>
             </div>
-            <div class="Scenter">
-                <p class="SCtop">唯唯诺App</p>
-                <p class="SCbot">让您成为聚会上更懂酒的人</p>
-            </div>
-            <div class="Sright">打开App</div>
-        </div>
-        <div class="main">
-            <div class="slideShow">
+            <div class="slideShow" v-if="userInfo.fileList.length>0">
                 <van-swipe :autoplay="3000" lazy-render>
-                    <van-swipe-item v-for="image in images" :key="image">
-                        <img :src="image" />
+                    <van-swipe-item v-for="image in userInfo.fileList" :key="image.uuid">
+                        <img :src="fileAddress+image.uuid" />
                     </van-swipe-item>
                 </van-swipe>
             </div>
             <div class="userInfo">
                 <div class="Uleft">
-                    <img src="@/assets/communitySharing/logo.png" alt="">
+                    <img :src="fileAddress+userInfo.avatarUUID" alt="">
                 </div>
-                <div class="Ucenter">唯唯诺App让您成为聚会上更懂酒的人</div>
+                <div class="Ucenter">{{userInfo.username}}</div>
                 <div class="Uright">关注</div>
             </div>
             <div class="article">
-                <h3 class="Atitle">唯唯诺App让您成为聚人唯唯诺App让您成为聚会上更懂酒的人</h3>
-                <div class="Acontent">
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                    唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人唯唯诺App让您成为聚会上更懂酒的人
-                </div>
+                <h3 class="Atitle">{{userInfo.title}}</h3>
+                <div class="Acontent"> {{userInfo.comment}} </div>
             </div>
             <div class="wine">
                 <div class="Winfo">
-                    <h4 class="Wname">唯唯诺App让您成为聚人唯唯诺App让您成为聚会上更懂酒的人</h4>
+                    <h4 class="Wname"> {{userInfo.wine.name}} </h4>
                     <div class="Wfrom">
                         <div class="Wflag">
                             <img src="@/assets/communitySharing/logo.png" alt="">
                         </div>
-                        <div class="Waddress">来自 唯唯诺App让您成为聚人唯唯诺App让您成为聚会上更懂酒的人</div>
+                        <div class="Waddress">来自 {{userInfo.wine.wineryName}}</div>
                     </div>
                     <div class="Wscore">
-                        <div class="Waverage"> 4.5 </div>
+                        <div class="Waverage"> {{userInfo.wine.rate}} </div>
                         <div class="WstarBox">
                             <div class="Wstar">
-                                <van-rate allow-half v-model="value" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee" />
+                                <van-rate allow-half :v-model="Number(userInfo.rate)" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee" />
                             </div>
-                            <p class="Wtotal"> 99999条评价 </p>
+                            <p class="Wtotal"> {{userInfo.wine.numOfRate}}条评价 </p>
                         </div>
                     </div>
                 </div>
                 <div class="Wimg">
-                    <img src="https://vivino-wines.oss-cn-shanghai.aliyuncs.com/images/active/gejhdtp1.png" alt="">
+                    <img :src="userInfo.wine.bottleImg" alt="">
                 </div>
             </div>
             <div class="location">
                 <div class="Laddress">
-                    <img alt="Vue logog" class="logog" src="@/assets/communitySharing/country.svg" width="125" height="125" />
-                    <span>昆明市·恒隆写字楼观景天台</span>
+                    <img alt="" class="logog" src="@/assets/communitySharing/country.svg" width="125" height="125" v-if="userInfo.publishAddress !==''"/>
+                    <span> {{userInfo.publishAddress}} </span>
                 </div>
-                <div class="ip">11-10 云南</div>
+                <div class="ip">{{userInfo.commentDate}} {{userInfo.userIpAddress}}</div>
             </div>
             <div class="uesrBack van-safe-area-bottom">
                 <div class="Uinput">
-                    <input type="text" placeholder="留下你的精彩评论吧"/>
+                    <input type="text" placeholder="留下你的精彩评论吧" @blur="openMask"/>
                 </div>
                 <div class="reply">
-                    <img alt="Vue logog" class="logog" src="@/assets/communitySharing/menu_message.svg" width="125" height="125" />
-                    <span>9999</span>
+                    <img alt="" class="logog" src="@/assets/communitySharing/menu_message.svg" width="125" height="125" />
+                    <span> {{userInfo.replyCount>999?'999+':userInfo.replyCount}} </span>
                 </div>
                 <div class="like">
-                    <img alt="Vue logog" class="logog" src="@/assets/communitySharing/reviews_praise.svg" width="125" height="125" />
-                    <span>8888</span>
+                    <img alt="" class="logog" src="@/assets/communitySharing/reviews_praise.svg" width="125" height="125" />
+                    <span> {{userInfo.thumbCount>999?'999+':userInfo.thumbCount}} </span>
                 </div>
             </div>
         </div>
@@ -95,34 +88,42 @@
 
 <script setup>
 import { onMounted, ref, getCurrentInstance } from 'vue'
-import { useRouter, useRoute } from 'vue-router';
+import { fileAddress } from '@/http/index'
 import { _post, _get } from '@/http/request'
 import { api } from "@/http/api";
-let maskState = ref(false)
-const images = ref([
-    'https://fastly.jsdelivr.net/npm/@vant/assets/apple-1.jpeg',
-    'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
-    'https://fastly.jsdelivr.net/npm/@vant/assets/apple-3.jpeg',
-    'https://fastly.jsdelivr.net/npm/@vant/assets/apple-4.jpeg',
-    'https://fastly.jsdelivr.net/npm/@vant/assets/apple-5.jpeg',
-]);
-const value = ref(4.5);
-let list1 = ref([])
-let router = useRouter;
-let route = useRoute;
-const {proxy} = getCurrentInstance()
+
+const {proxy} = getCurrentInstance();
 const newWxShare = proxy.$wxShare;
+
+let userInfo = ref(); //详情数据
+let maskState = ref(false); //遮罩层状态
+let timer=ref(); //定时器
+
 onMounted(() => {
-    // 调用分享
-    newWxShare('社区分享','我是一条社区分享',window.location.href,'封面图')
-    getUser()
+    setUrl();
+    getParameter();
+     // 调用分享
+    if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+        newWxShare('社区分享','我是一条社区分享',sessionStorage.getItem('originUrl'),'封面图')
+    } else {
+        newWxShare('社区分享','我是一条社区分享',window.location.href,'封面图')
+    }
 })
+// 进入页面存储页面路径
+function setUrl() {
+    let userAgent = navigator.userAgent
+    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+        sessionStorage.setItem('originUrl', window.location.href) // 用于ios分享
+        // console.log(window.location.href);
+    }
+}
 // 打开遮罩层
 function openMask() {
     // 如果是在微信内正常关闭遮罩层
     // console.log(isWeiXin());
     if (isWeiXin() == true) {
         maskState.value = true;
+        // console.log(123);
     } else {// 否则就打开应用市场或者是app
         openAppOrMarket();
     }
@@ -136,38 +137,31 @@ function isWeiXin() {
     let ua = window.navigator.userAgent.toLowerCase();
     return ua.match(/MicroMessenger/i) == 'micromessenger';
 }
-
 // 打开app或者是应用市场
 function openAppOrMarket() {
-    const t = 1000
-    const t1 = Date.now()
-    const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
-    // const ifr = document.createElement('iframe')
-    // 下面的是需要跳转到app的schema链接
-    // ifr.setAttribute('src', 'vivinochina://')
-    // ifr.setAttribute('style', 'display:none')
-    // document.body.appendChild(ifr)
-    // 跳转详情
-    window.location.href = 'vivinochina://activity/deep-link-wine-comments-detail-screen?detailId=${id}&navigatorSource=deep_link_source'
-    // 一段时间没有跳转后打开下载
-    setTimeout(function () {
-        // 启动app时间较长处理
-        const t2 = Date.now()
-        // document.body.removeChild(ifr)
-        if (t2 - t1 < t + 100) {
-            console.log('hasApp', false)
-            // 没有安装App，跳转到对应的App下载页面。
-            if (isiOS) {
-                window.location.href = 'https://apps.apple.com/app/apple-store/id1626033731';
-            } else {
-                window.location.href = 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk';
-            }
+    timer = setTimeout(() => {
+        const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
+        // 下载地址
+        if (isiOS) {
+            window.location.href = 'https://apps.apple.com/app/apple-store/id1626033731';
         } else {
-            console.log('hasApp', true)
-            // 已经安装App，下面的是需要跳转到app的schema链接。
-            window.location.href = 'vivinochina://activity/deep-link-wine-comments-detail-screen?detailId=${id}&navigatorSource=deep_link_source'
+            window.location.href = 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk';
         }
-    }, t)
+    }, 3000)
+    // 打开特定的详情页面
+    window.location.href = 'vivinochina://activity/deep-link-wine-comments-detail-screen?detailId=${id}&navigatorSource=deep_link_source'
+    watchVisibility();
+}
+// 如果页面隐藏了，则表示唤起成功，这时候需要清除下载定时器
+function watchVisibility() {
+    window.addEventListener('visibilitychange', () => {
+        // 监听页面visibility
+        if(document.hidden) {
+            // 如果页面隐藏了，则表示唤起成功，这时候需要清除下载定时器
+            clearTimeout(timer)
+            console.log('visibilitychange');
+        }
+    })
 }
 // 获取App跳转过来URL后的参数
 function getParameter() {
@@ -179,32 +173,40 @@ function getParameter() {
         for (let i = 0; i < strs.length; i++) {
             obj[strs[i].split('=')[0]] = strs[i].split('=')[1]
         }
-        return obj;
+        console.log(obj);
+        // return obj;
+        getUser(obj.gatherId, obj.reqType, obj.userUUID)
     }
 }
 // 获取用户信息
-function getUser() {
+function getUser( id, type, uuid ) {
     let data = {
-        page: 1,
-        size: 10
+        gatherId: id,
+        reqType: type,
+        userUUID: uuid
     }
-    _get(api.getCommentJoinInfo, data).then((res) => {
+    _get(api.queryCommunityCommonInfoWeb, data).then((res) => {
         console.log(res);
-        list1.value = res.data
+        userInfo.value = res.data;
     })
-    let abc = getParameter()
-    console.log(abc.ie);
 }
 </script>
 
 <style scoped>
 .communitySharing{
-    /* position: absolute;
+    position: absolute;
     top: 0;
-    left: 0; */
+    left: 0;
     width: 100vw;
-    height: 100vh;
+    /* height: 100vh; */
     overflow: hidden;
+}
+.main{
+    width: 100vw;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
 }
 .suckTop{
     width: 100vw;
@@ -243,12 +245,6 @@ function getUser() {
     background-color: #B81728;
     border-radius: calc(var(--vw)*32);
     margin-right: calc(var(--vw)*16);
-}
-.main{
-    width: 100vw;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
 }
 .slideShow,.slideShow img{
     width: 100vw;
@@ -354,6 +350,8 @@ function getUser() {
     white-space: nowrap;/*规定段落中的文本不进行换行 */
 }
 .wine .Winfo .Wscore .Waverage{
+    width: calc(var(--vw)*24);
+    text-align: center;
     font-size: calc(var(--vw)*16);
     color: #1B1B1B;
     margin-right: calc(var(--vw)*8);
@@ -374,6 +372,7 @@ function getUser() {
     border-radius: calc(var(--vw)*8);
     width: 100%;
     height: 100%;
+    object-fit: contain;
 }
 
 .location{
@@ -428,6 +427,7 @@ function getUser() {
     color: #bbb;
 }
 .uesrBack .reply,.uesrBack .like{
+    width: calc(var(--vw)*27);
     height: calc(var(--vw)*36);
     display: flex;
     flex-direction: column;
@@ -445,9 +445,10 @@ function getUser() {
 .appOpen{
     width: 100%;
     text-align: center;
-    position: absolute;
+    position: fixed;
     left: 0;
     bottom: calc(var(--vw)*48);
+    z-index: 100;
 }
 .appOpen span{
     display: inline-block;

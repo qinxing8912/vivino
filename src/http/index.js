@@ -1,8 +1,12 @@
 import axios from 'axios'
 
+export const fileAddress = 'http://dev.vivino.cc/api/files/sc/find-by-uuid?uuid='
+// export const fileAddress = 'https://vivino.cc/api/files/sc/find-by-uuid?uuid='
 //创建axios的一个实例
 const instance = axios.create({
-    baseURL: "",
+    baseURL: "", //开发
+    // baseURL: "http://dev.vivino.cc/", //测试
+    // baseURL: "https://vivino.cc/", //生产
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json;charset=UTF-8;'
