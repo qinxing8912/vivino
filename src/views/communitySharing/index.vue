@@ -36,7 +36,7 @@
                         <!-- <div class="Wflag">
                             <img src="@/assets/communitySharing/logo.png" alt="">
                         </div> -->
-                        <div class="Waddress">来自 {{userInfo.wine.countryName+'·'+userInfo.wine.wineryName}}</div>
+                        <div class="Waddress">来自{{userInfo.wine.countryName+'·'+userInfo.wine.regionName+'·'+userInfo.wine.wineryName}}</div>
                     </div>
                     <div class="Wscore">
                         <div class="Waverage"> {{userInfo.wine.rate}} </div>
