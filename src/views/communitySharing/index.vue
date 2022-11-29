@@ -9,10 +9,10 @@
                     <p class="SCtop">唯唯诺App</p>
                     <p class="SCbot">让您成为聚会上更懂酒的人</p>
                 </div>
-                <div class="Sright">打开App</div>
+                <div class="Sright" @click="openApp">打开App</div>
             </div>
             <div class="slideShow" v-if="userInfo.fileList.length>0">
-                <van-swipe :autoplay="3000" lazy-render>
+                <van-swipe  lazy-render>
                     <van-swipe-item v-for="image in userInfo.fileList" :key="image.uuid">
                         <img :src="fileAddress+image.uuid" />
                     </van-swipe-item>
@@ -29,20 +29,20 @@
                 <h3 class="Atitle">{{userInfo.title}}</h3>
                 <div class="Acontent"> {{userInfo.comment}} </div>
             </div>
-            <div class="wine">
+            <div class="wine" v-if="userInfo.wine!==''">
                 <div class="Winfo">
                     <h4 class="Wname"> {{userInfo.wine.name}} </h4>
                     <div class="Wfrom">
-                        <div class="Wflag">
+                        <!-- <div class="Wflag">
                             <img src="@/assets/communitySharing/logo.png" alt="">
-                        </div>
-                        <div class="Waddress">来自 {{userInfo.wine.wineryName}}</div>
+                        </div> -->
+                        <div class="Waddress">来自 {{userInfo.wine.countryName+'·'+userInfo.wine.wineryName}}</div>
                     </div>
                     <div class="Wscore">
                         <div class="Waverage"> {{userInfo.wine.rate}} </div>
                         <div class="WstarBox">
                             <div class="Wstar">
-                                <van-rate allow-half :v-model="Number(userInfo.rate)" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee" />
+                                <van-rate allow-half v-model="userInfo.wine.rate" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee" />
                             </div>
                             <p class="Wtotal"> {{userInfo.wine.numOfRate}}条评价 </p>
                         </div>
@@ -75,7 +75,7 @@
         </div>
     </div>
     <div class="appOpen">
-        <span @click="openMask">App内打开</span>
+        <span @click="inApp">App内打开</span>
     </div>
     <div class="mask" v-if="maskState" @click="colseMask">
         <img src="@/assets/communitySharing/pointer.png" alt="" class="arrow">
@@ -91,6 +91,7 @@ import { onMounted, ref, getCurrentInstance } from 'vue'
 import { fileAddress } from '@/http/index'
 import { _post, _get } from '@/http/request'
 import { api } from "@/http/api";
+import { setSpot } from "@/utils/talkingData";
 
 const {proxy} = getCurrentInstance();
 const newWxShare = proxy.$wxShare;
@@ -100,7 +101,11 @@ let maskState = ref(false); //遮罩层状态
 let timer=ref(); //定时器
 
 onMounted(() => {
+    // 埋点
+    setSpot('动态详情分享', '动态详情分享');
+    // 保存页面url用于分享
     setUrl();
+    // 获取参数
     getParameter();
      // 调用分享
     if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
@@ -123,6 +128,11 @@ function openMask() {
     // console.log(isWeiXin());
     if (isWeiXin() == true) {
         maskState.value = true;
+        let mo = function (e) {
+            e.preventDefault();
+        }
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('touchmove',mo,false); //禁止页面滑动
         // console.log(123);
     } else {// 否则就打开应用市场或者是app
         openAppOrMarket();
@@ -131,6 +141,11 @@ function openMask() {
 // 关闭遮罩层
 function colseMask() {
     maskState.value = false;
+    let mo = function (e) {
+        e.preventDefault();
+    }
+    document.body.style.overflow = ''; //出现滚动条
+    document.addEventListener('touchmove',mo,false);
 }
 // 判断是否是微信浏览器，即是不是在微信内打开的页面
 function isWeiXin() {
@@ -187,8 +202,51 @@ function getUser( id, type, uuid ) {
     }
     _get(api.queryCommunityCommonInfoWeb, data).then((res) => {
         console.log(res);
-        userInfo.value = res.data;
+        if(res.code===200){
+            // 截取日期 月日
+            res.data.commentDate = res.data.commentDate.substring(5);
+            // 转为数字并保留一位小数
+            // res.data.wine.rate = Number(res.data.wine.rate);
+            userInfo.value = res.data;
+        }
     })
+}
+// 埋点-打开App
+function openApp() {
+    openMask();
+    const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
+    if (isiOS) {
+        const kv = {
+            'source': 'H5动态分享页',
+            'os': 'ios'
+        }
+        setSpot('打开App', '打开App ', kv)
+    } else {
+        const kv = {
+            'source': 'H5动态分享页',
+            'os': 'android'
+        }
+        setSpot('打开App', '打开App ', kv)
+    }
+
+}
+// 埋点-App内打开
+function inApp() {
+    openMask();
+    const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
+    if (isiOS) {
+        const kv = {
+            'source': 'H5动态分享页',
+            'os': 'ios'
+        }
+        setSpot('App内打开', 'App内打开', kv)
+    } else {
+        const kv = {
+            'source': 'H5动态分享页',
+            'os': 'android'
+        }
+        setSpot('App内打开', 'App内打开', kv)
+    }
 }
 </script>
 
@@ -464,10 +522,10 @@ function getUser( id, type, uuid ) {
 .mask{
     width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 10;
+    z-index: 1000;
     background-color: rgba(0, 0, 0, 0.7);
 }
 .mask .arrow{

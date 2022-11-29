@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+import { Toast } from 'vant';
+import 'vant/es/toast/style';
+
 export const fileAddress = 'http://dev.vivino.cc/api/files/sc/find-by-uuid?uuid='
 // export const fileAddress = 'https://vivino.cc/api/files/sc/find-by-uuid?uuid='
 //创建axios的一个实例
@@ -15,6 +18,11 @@ const instance = axios.create({
 
 // 请求拦截器
 instance.interceptors.request.use((config)=>{
+    Toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        loadingType: 'spinner',
+    });
     // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token
     // const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis4NjEzMzc4ODU1NDY4IiwidXNlcklkIjo2LCJ1c2VyVVVJRCI6ImZmNGEzMmU0LThjOWQtNDI0ZS1iNDQyLWNkYzJlODBkNTgwNyIsImlhdCI6MTY2NjA1ODY1NSwiZXhwIjoxNjY2NjYzNDU1fQ.tqDbPJXQlaJLlmKJnVe71a61EHOR-Q9CGD1YakDw5c8";
     const token = '';
@@ -30,6 +38,7 @@ instance.interceptors.request.use((config)=>{
 
 // 响应拦截器
 instance.interceptors.response.use((response)=>{
+    Toast.clear();
     // 响应成功，则返回数据
     return response.data;
 },(error)=>{
