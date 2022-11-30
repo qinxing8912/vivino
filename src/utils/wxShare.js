@@ -3,7 +3,6 @@ import { api } from '@/http/api.js'
 import axios from 'axios'
 
 const wxShare = async function (title, desc, link, img) {
-    let imgUrls = window.location.origin + '/static/images/logo.png'
     // 转换为FormData
     let data = new FormData()
     data.append('url',link)
@@ -34,9 +33,9 @@ const wxShare = async function (title, desc, link, img) {
                         //自定义“分享给朋友”及“分享到QQ”按钮的分享内容（1.4.0）
                         wx.updateAppMessageShareData({
                             title: title, // 分享标题
-                            desc: desc ? desc : '简介',
+                            desc: desc ? desc : '我发布了一条动态。快来围观',
                             link: link, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                            imgUrl: '' + imgUrls + '', // 分享图标
+                            imgUrl: img, // 分享图标
                             success: function () {
                                 // 用户点击了分享后执行的回调函数
                                 console.log("分享成功");
@@ -50,7 +49,7 @@ const wxShare = async function (title, desc, link, img) {
                         wx.updateTimelineShareData({
                             title: title, // 分享标题
                             link: link, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                            imgUrl: imgUrls, // 分享图标
+                            imgUrl: img, // 分享图标
                             success: function () {
                                 // 用户点击了分享后执行的回调函数
                                 // console.log("分享成功2");
