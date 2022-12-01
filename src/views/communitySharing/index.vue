@@ -75,8 +75,8 @@
         </div>
     </div>
     <div class="appOpen"><span @click="inApp">App内打开</span></div>
-    <div class="mask" v-if="maskState" @click="colseMask"><img class="arrow" src="@/assets/communitySharing/pointer.png"
-            alt>
+    <div class="mask" v-if="maskState" @click="colseMask">
+        <img class="arrow" src="@/assets/communitySharing/pointer.png" alt>
         <div>
             <p>1、点击右上角 ···</p>
             <p>2、屏幕下方选择 在默认浏览器打开</p>
@@ -135,6 +135,7 @@ function openMask() {
 function colseMask() {
     maskState.value = false;
     let mo = function (e) {
+        console.log(e);
         e.preventDefault();
     }
     document.body.style.overflow = ''; //出现滚动条
