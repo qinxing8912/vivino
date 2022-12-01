@@ -29,7 +29,7 @@
                 <h3 class="Atitle">{{ userInfo.title }}</h3>
                 <div class="Acontent">{{ userInfo.comment }}</div>
             </div>
-            <div class="wine" v-if="userInfo.wine !== '' && userInfo.wine.id !== ''">
+            <div class="wine" v-if="(userInfo.wine !== '' && userInfo.wine.id !== null)">
                 <div class="Winfo">
                     <h4 class="Wname">{{ userInfo.wine.name }}</h4>
                     <div class="Wfrom">
