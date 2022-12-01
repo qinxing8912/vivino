@@ -29,7 +29,7 @@
                 <h3 class="Atitle">{{ userInfo.title }}</h3>
                 <div class="Acontent">{{ userInfo.comment }}</div>
             </div>
-            <div class="wine" v-if="userInfo.wine !== ''">
+            <div class="wine" v-if="userInfo.wine !== '' && userInfo.wine.id !== ''">
                 <div class="Winfo">
                     <h4 class="Wname">{{ userInfo.wine.name }}</h4>
                     <div class="Wfrom">
@@ -44,7 +44,7 @@
                         <div class="Waverage">{{ userInfo.wine.rate }}</div>
                         <div class="WstarBox">
                             <div class="Wstar">
-                                <van-rate allow-half v-model="userInfo.wine.rate" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee"></van-rate>
+                                <van-rate allow-half readonly v-model="userInfo.wine.rate" size="calc(var(--vw)*12)" color="#FCB709" void-icon="star" void-color="#eee"></van-rate>
                             </div>
                             <p class="Wtotal">{{ userInfo.wine.numOfRate }}条评价</p>
                         </div>
