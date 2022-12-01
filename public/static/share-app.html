@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:content="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content:="width=device-width,initial-scale=1.0,maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title></title>
+  <script src="https://jic.talkingdata.com/app/h5/v1?appid=46831FAB11DE436FB3A6EF6FEF8E6C05&vn=sharev1.0&vc=1.0.1"></script>
+  <script src="js/vue.min.js"></script>
+  <script src="js/axios.min.js"></script>
+  <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+  <link rel="preconnect" href="https://fonts.proxy.ustclug.org">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.proxy.ustclug.org/css2?family=Noto+Sans+SC&display=swap" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
+  <!--  <link rel="stylesheet" href="font/stylesheet.css">-->
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <div class="logo-vivino">
+      <img src="img/share/vivino-logo-text.png">
+    </div>
+  </div>
+  <div style="margin: 0 25px">
+    <div class="wine-all">
+      <div class="wine">
+        <div class="wine-text">
+          <div class="wine-title">{{ wine.vintageName }}</div>
+          <div class="from">
+            <!--        <div class="from-icon">-->
+            <!--          <img src="img/share/from-icon.png" height="36" width="36">-->
+            <!--        </div>-->
+            <div class="from-text">
+              {{ wine.country }} · {{ wine.region }}
+            </div>
+          </div>
+          <div class="en-name">
+            <div class="en-name-text">
+              {{ wine.vintageEnName }}
+            </div>
+            <div class="en-name-text" style="margin-top: 2px">
+              {{ wine.wineryEnName }}
+            </div>
+          </div>
+          <div class="rate-year-price">
+            <div class="score">{{ Number(wine.rate).toFixed(1) }}</div>
+            <div class="rate">
+              <div class="rate-stars">
+                <div class="rating-content" data-rating="5.0">
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                  <span>★</span>
+                </div>
+              </div>
+              <div class="comment-count">{{ wine.numOfRate }}条评价</div>
+            </div>
+            <div v-show="wine.year" class="year">{{ wine.year }}</div>
+            <div v-show="wine.price" class="price">￥{{ Number(wine.price).toFixed(0) }}</div>
+          </div>
+        </div>
+        <div class="wine-pic" v-if="wine.userInfo!=null && wine.userInfo.rate!=null">
+          <div class="avater-rate">
+            <div class="user-avater">
+              <img class="avater-img" :src="wine.userInfo.avatar" width="100%" height="100%">
+            </div>
+            <div class="user-rate">
+              <div class="content">
+                <div class="box">
+                  {{ Number(wine.userInfo.rate).toFixed(1) }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bottle">
+            <div class="bottle-img">
+              <div style="display: flex;align-items: center;justify-content: center;">
+                <img :src="wine.img" width="57%">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wine-pic" v-if="wine.userInfo==null || wine.userInfo.rate==null">
+          <div class="bottle" style="height: 100%">
+            <div class="bottle-img" style="height: 66%">
+              <div style="display: flex;align-items: center;justify-content: center;">
+                <img :src="wine.img" width="70%">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="download">
+    <div style="width: 90%;padding: 40px 5%;">
+      <div class="iOS-download" @click="inApp">
+        <div style="display: flex;align-items: center;justify-content: center; height: 80%;">
+          <img src="img/share/vivino-logo-download.png" width="130%" style="height: 65%">
+        </div>
+        <div class="download-font">
+          App内打开
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    全球首屈一指的葡萄酒识别应用
+  </div>
+  <div class="weixin-tip" @click="closeMask">
+    <div style="position: absolute;top: 16px;right: 40px;">
+      <img src="./img/share/pointer.png" alt="">
+    </div>
+    <div style="color: #FFFFFF;font-size: 2.4vh; height: 100px;margin-top: 60%">
+      1、点击右上角&nbsp&nbsp&nbsp<strong>···</strong>
+    </div>
+    <div style="color: #FFFFFF;font-size: 2.4vh;font-weight: 400;height: 100px">2、屏幕下方选择&nbsp在默认浏览器中打开&nbsp</div>
+  </div>
+</div>
+
+<script>
+
+  //var vConsole = new VConsole()
+  new Vue({
+    el: '.container', //el用于指定当前Vue实例为哪个容器服务，值通常为选择器字符串。
+    // filters: {
+    //   rateFilter(num) {
+    //     console.log(Number(num))
+    //     if (num){
+    //       return Number(num).toFixed(1)
+    //     }
+    //   },
+    //   priceFilter(num){
+    //     if (num){
+    //       if (parseInt(num)>50000){
+    //         return parseInt(num/10000)+'万'
+    //       } else {
+    //         return Number(num).toFixed(2)
+    //       }
+    //     }
+    //     return null
+    //   }
+    // },
+    data: { //data中用于存储数据，数据供el所指定的容器去使用。
+      urls: {
+        android: 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk',
+        ios: 'https://itunes.apple.com/cn/app/id156822201'
+      },
+      wine: {},
+      userUUID: '',
+      vintageUUID: '',
+      wineUUID: '',
+      timer: null,
+      bottleImg:''
+    },
+    methods: {
+      getWechatInfo(item) {
+        let data = new FormData()
+        data.append('url', window.location.href)
+        // let requestUrl = this.$common.commonRequestUrl + 'getWxAppConfig'
+        //let requestUrl = 'https://www.vivino.cc/app-api/appapi/web/getWxAppConfig'
+        let requestUrl = 'http://dev.vivino.cc/app-api/appapi/web/getWxAppConfig'
+        axios({
+          method: 'post',
+          url: requestUrl,
+          data: data
+        }).then(res => {
+          if (res.data.msg === 'success') {
+            console.log(JSON.stringify(res.data.data))
+            wx.config({
+              debug: false,
+              appId: res.data.data.appId,
+              timestamp: res.data.data.timestamp,
+              nonceStr: res.data.data.nonceStr,
+              signature: res.data.data.signature,
+              jsApiList: ['getLocation', 'updateAppMessageShareData', 'updateTimelineShareData']
+            })
+            wx.ready(function () {
+              wx.checkJsApi({
+                jsApiList: [
+                  'getLocation',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData'
+                ], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
+                success: function (res) {
+                  console.log('wxJsApi success:', res)
+                },
+                fail: (err) => {
+                  console.log('wxJsApi fail:', err)
+                }
+              })
+              // config信息验证后会执行 ready 方法，所有接口调用都必须在 config 接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在 ready 函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在 ready 函数中。
+            })
+            wx.ready(function () { // 需在用户可能点击分享按钮前就先调用
+              wx.updateAppMessageShareData({
+                title: item.vintageName, // 分享标题
+                desc: '来自' + item.country + '·' + item.region + '·' + item.winery + '·' + item.wineryEnName, // 分享描述
+                link: window.location.href,
+                imgUrl: item.img, // 分享图标
+                success: function () {
+                  // 设置成功
+                  console.log('分享成功')
+                }
+              })
+            })
+            wx.ready(function () { // 需在用户可能点击分享按钮前就先调用
+              wx.updateTimelineShareData({
+                title: item.vintageName, // 分享标题
+                desc: '来自' + item.country + '·' + item.region + '·' + item.winery + '·' + item.wineryEnName, // 分享描述
+                link: window.location.href,
+                imgUrl: item.img, // 分享图标
+                success: function () {
+                  // 设置成功
+                  console.log('分享成功')
+                }
+              })
+            })
+          }
+        })
+      },
+      getURLString(name, url) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = url.substr(1).match(reg);
+        if (r != null) {
+          console.log(decodeURIComponent(r[2]))
+          return decodeURIComponent(r[2]);
+        }
+        return null;
+      },
+      getData() {
+        var url = window.location.search
+        var paramUrl = 'http://localhost/docs/share-app.html?userUUID=9c7c2bf7-88fe-4af8-8564-3f8d0632ee97&vintageUUID=05364844-42f8-11ec-87fd-0242ac120003'
+        this.userUUID = this.getURLString('userUUID', url)
+        this.vintageUUID = this.getURLString('vintageUUID', url)
+        this.wineUUID = this.getURLString('wineUUID', url)
+        // 线上
+        //var requestUrl = 'https://www.vivino.cc/app-api/appapi/web/getWineShareInfo'
+        //var requestUrlOld = 'https://www.vivino.cc/app-api/appapi/web/getVintageShareInfo'
+        // 线上测试
+        var requestUrlTest = 'http://dev.vivino.cc/app-api/appapi/web/getWineShareInfo'
+        // var requestUrlTestOld = 'http://dev.vivino.cc/app-api/appapi/web/getVintageShareInfo'
+        // 本地测试
+        //var requestUrlLocal = 'http://localhost/app-api/appapi/web/getWineShareInfo';
+        //var requestUrlLocalOld = 'http://localhost/app-api/appapi/web/getVintageShareInfo';
+        if (this.wineUUID) {
+          axios.get(requestUrlTest, {
+            params: {userUUID: this.userUUID, wineUUID: this.wineUUID},
+            headers: {'device-id': Cookies.get('deviceId')}
+          }).then(res => {
+            if (res.data.msg === 'success') {
+              this.wine = res.data.data;
+              this.bottleImg = this.wine.imgUUID
+              this.getWechatInfo(this.wine)
+              document.title = this.wine.vintageName
+            }
+          })
+        } else {
+          axios.get(requestUrlTest, {
+            params: {userUUID: this.userUUID, vintageUUID: this.vintageUUID},
+            headers: {'device-id': Cookies.get('deviceId')}
+          }).then(res => {
+            if (res.data.msg === 'success') {
+              this.wine = res.data.data;
+              this.getWechatInfo(this.wine)
+              document.title = this.wine.vintageName
+            }
+          })
+        }
+
+
+      },
+      setRate() {
+        var div = document.querySelector(".rating-content");
+        let rate = Number(Number(this.wine.rate).toFixed(1))
+        switch (true) {
+          case rate <= 0.5 :
+            div.setAttribute("data-rating", '0.5');
+            break
+          case rate > 0.5 && rate <= 1.0 :
+            div.setAttribute("data-rating", '1.0');
+            break
+          case rate > 1.0 && rate <= 1.5 :
+            div.setAttribute("data-rating", '1.5');
+            break
+          case rate > 1.5 && rate <= 2.0 :
+            div.setAttribute("data-rating", '2.0');
+            break
+          case rate > 2.0 && rate <= 2.5 :
+            div.setAttribute("data-rating", '2.5');
+            break
+          case rate > 2.5 && rate <= 3.0 :
+            div.setAttribute("data-rating", '3.0');
+            break
+          case rate > 3.0 && rate <= 3.5 :
+            div.setAttribute("data-rating", '3.5');
+            break
+          case rate > 3.5 && rate <= 4.0 :
+            div.setAttribute("data-rating", '4.0');
+            break
+          case rate > 4.0 && rate <= 4.5 :
+            div.setAttribute("data-rating", '4.5');
+            break
+          case rate > 4.5 && rate <= 5.0 :
+            div.setAttribute("data-rating", '5.0');
+        }
+
+      },
+      closeMask() {
+        var box = document.getElementsByClassName("weixin-tip")[0]
+        box.style.display = "none"
+      },
+      // 判断访问终端
+      downloadApp() {
+        // eslint-disable-next-line one-var
+        const u = navigator.userAgent
+        const isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) // ios终端
+        const urls = {
+          'android': 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk',
+          'ios': 'https://apps.apple.com/cn/app/%E5%94%AF%E5%94%AF%E8%AF%BA/id1626033731'
+        }
+        if (isiOS) {
+          window.location.href = urls.ios
+          return
+        }
+        // isweixin
+        var ua = window.navigator.userAgent.toLowerCase()
+        var box = document.getElementsByClassName('weixin-tip')[0]
+        // eslint-disable-next-line
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+          box.style.display = 'flex'
+        } else {
+          window.location.href = urls.android
+        }
+      },
+      // 埋点-App内打开
+      inApp() {
+        this.openMask()
+        const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
+        if (isiOS) {
+          const kv = {
+            'source': '酒款分享页',
+            'os': 'ios'
+          }
+          window.TDAPP.onEvent('App内打开', 'App内打开', kv)
+        } else {
+          const kv = {
+            'source': '酒款分享页',
+            'os': 'android'
+          }
+          window.TDAPP.onEvent('App内打开', 'App内打开', kv)
+        }
+      },
+      openMask() {
+        // 如果是在微信内正常关闭遮罩层
+        // console.log(isWeiXin());
+        if (this.isWeiXin() == true) {
+          var box = document.getElementsByClassName('weixin-tip')[0]
+          box.style.display = 'flex'
+          let mo = function (e) {
+            e.preventDefault();
+          }
+          document.body.style.overflow = 'hidden';
+          document.addEventListener('touchmove', mo, false); //禁止页面滑动
+          // console.log(123);
+        } else {// 否则就打开应用市场或者是app
+          this.openAppOrMarket();
+        }
+      },
+      openAppOrMarket() {
+        this.timer = setTimeout(() => {
+          const isiOS = /(iPhone|iPad|iPod|IOS)/i.test(window.navigator.userAgent)
+          // 下载地址
+          if (isiOS) {
+            window.location.href = 'https://apps.apple.com/app/apple-store/id1626033731';
+          } else {
+            window.location.href = 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk';
+          }
+        }, 3000)
+        console.log('12312'+this.bottleImg)
+        // 打开特定的详情页面https://apps.apple.com/app/apple-store/id1626033731
+        //window.location.href = 'https://apps.apple.com/app/apple-store/id1626033731'
+        window.location.href = 'vivinochina:///deep-link-wine-detail-screen?wineUuid='+this.wineUUID+'&bottleImg='+this.bottleImg
+        this.watchVisibility();
+      },
+      watchVisibility() {
+        window.addEventListener('visibilitychange', () => {
+          // 监听页面visibility
+          if(document.hidden) {
+            // 如果页面隐藏了，则表示唤起成功，这时候需要清除下载定时器
+            clearTimeout(this.timer)
+            console.log('visibilitychange');
+          }
+        })
+      },
+      isWeiXin() {
+        let ua = window.navigator.userAgent.toLowerCase();
+        return ua.match(/MicroMessenger/i) == 'micromessenger';
+      }
+    },
+    beforeCreate() {
+      let time = new Date().getTime()
+      let str = md5(time)
+      if (Cookies.get('deviceId')) {
+        return;
+      } else {
+        Cookies.set('deviceId', str);
+      }
+    },
+    created() {
+      //this.getData()
+    },
+    mounted() {
+      this.getData()
+
+    },
+    updated() {
+      this.setRate()
+    },
+  })
+</script>
+</body>
+</html>
+<style>
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    background: #F6F3F0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .logo {
+    width: 100%;
+    height: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-vivino {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .wine-all {
+    border-radius: 25px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .wine {
+    display: flex;
+    width: 100%;
+    padding: 12px 0 12px 24px;
+    flex-direction: row;
+    background: #FFFFFF;
+    border-radius: 25px;
+  }
+
+  .wine-text {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .wine-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    /*font-family: 'Source Han Sans CN';*/
+    font-family: "Noto Sans SC";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.8vh;
+    line-height: 2.6vh;
+    /* or 141% */
+    /* 标题 主文字 #1B1B1B */
+    color: #1B1B1B;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    align-self: stretch;
+    flex-grow: 0;
+  }
+
+  .from {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 2px;
+  }
+
+  .from-icon {
+    height: 3rem;
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .from-text {
+    display: flex;
+    align-items: center;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.7vh;
+    line-height: 2vh;
+    color: #A8A3A2;
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+  }
+
+  .en-name {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 4px;
+  }
+
+  .en-name-text {
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.5vh;
+    line-height: 2vh;
+    /* identical to box height, or 119% */
+    /* 正文 辅助文字 #A8A3A2 */
+    color: #A8A3A2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  .rate-year-price {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .score {
+    height: 5rem;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 2.2vh;
+    line-height: 3vh;
+    display: flex;
+    align-items: center;
+    /* 标题 主文字 #1B1B1B */
+    color: #1B1B1B;
+    /* Inside auto layout */
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+  }
+
+  .rate {
+    height: 5rem;
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+  }
+
+  .rate-stars {
+    display: flex;
+    align-items: center;
+    height: 40%;
+    width: 100%;
+    font-size: 1.8rem;
+  }
+
+  .comment-count {
+    height: 50%;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.5vh;
+    line-height: 1.5vh;
+    /* identical to box height */
+    display: flex;
+    align-items: center;
+    /* 正文 辅助文字 #A8A3A2 */
+    color: #A8A3A2;
+    /* Inside auto layout */
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .year {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 20%;
+    background: #F2F2F2;
+    border-radius: 10px;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 2.2vh;
+    line-height: 3vh;
+    /* 标题 主文字 #1B1B1B */
+    color: #1B1B1B;
+    margin-left: 12px;
+  }
+
+  .price {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: #F2F2F2;
+    border-radius: 3rem;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 2vh;
+    line-height: 2.8vh;
+    display: flex;
+    align-items: center;
+    /* 标题 主文字 #1B1B1B */
+    color: #A8A3A2;
+    position: absolute;
+    right: 20%;
+    width: 20%;
+  }
+
+  .wine-pic {
+    width: 20%;
+  }
+
+  .avater-rate {
+    height: 20%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-rate {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 3rem;
+  }
+
+  .user-avater {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 40%;
+    width: 2.5rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    z-index: 2;
+    overflow: hidden;
+    border: 4px solid #FFFFFF;
+  }
+
+  .bottle {
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .bottle-img {
+    width: 57%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .video-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 10%;
+    top: 30%;
+  }
+
+  .download {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 30%;
+  }
+
+  .iOS-download {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 7rem;
+    border-radius: 70px;
+    background: #01A78A;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+  }
+
+  .Android-download {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    height: 7rem;
+    border-radius: 70px;
+    background: #01A78A;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .download-font {
+    display: flex;
+    margin-left: 30px;
+    align-items: center;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.9vh;
+    line-height: 24px;
+    /* identical to box height, or 150% */
+    text-align: center;
+    color: #FFFFFF;
+  }
+
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 34%;
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.6vh;
+    /* identical to box height */
+    color: #FFFFFF;
+    background: url("img/share/footer.png") no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .rating-content {
+    color: #ffa100;
+  }
+
+  .rating-content span {
+    display: inline-block;
+    position: relative;
+  }
+
+  .rating-content[data-rating="0.5"] span:nth-child(n+1),
+  .rating-content[data-rating="1.5"] span:nth-child(n+2),
+  .rating-content[data-rating="2.5"] span:nth-child(n+3),
+  .rating-content[data-rating="3.5"] span:nth-child(n+4),
+  .rating-content[data-rating="4.5"] span:last-child {
+    color: #FFF;
+  }
+
+  .rating-content[data-rating="0.5"] span:nth-child(n+1):before,
+  .rating-content[data-rating="1.5"] span:nth-child(n+2):before,
+  .rating-content[data-rating="2.5"] span:nth-child(n+3):before,
+  .rating-content[data-rating="3.5"] span:nth-child(n+4):before,
+  .rating-content[data-rating="4.5"] span:last-child:before {
+    content: "\2605";
+    display: block;
+    position: absolute;
+    width: 50%;
+    pointer-events: none;
+    overflow: hidden;
+    color: #ffa100;
+  }
+
+  .rating-content[data-rating="0.5"] span:nth-child(n+2),
+  .rating-content[data-rating="1.0"] span:nth-child(n+2),
+  .rating-content[data-rating="1.5"] span:nth-child(n+3),
+  .rating-content[data-rating="2.0"] span:nth-child(n+3),
+  .rating-content[data-rating="2.5"] span:nth-child(n+4),
+  .rating-content[data-rating="3.0"] span:nth-child(n+4),
+  .rating-content[data-rating="3.5"] span:nth-child(n+5),
+  .rating-content[data-rating="4.0"] span:nth-child(n+5) {
+    display: none;
+  }
+
+  .content {
+    position: relative;
+    /*margin-top: 100px;*/
+    margin-left: -4.3rem;
+    /*width: 4rem;*/
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    /* overflow: hidden; */
+  }
+
+  .box {
+    width: 4rem;
+    height: 2.2rem;
+    border: 2px solid #B81728;
+    background: #B81728;
+    border-radius: 10px;
+    color: #FFFFFF;
+    font-size: 2.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 1rem;
+  }
+
+  .border {
+    position: absolute;
+    width: 3rem;
+    height: 3rem;
+    border-right: 2px solid #B81728;
+    z-index: 1;
+    background: #fff;
+    border-radius: 32%;
+  }
+
+  .left.top {
+    top: 0px;
+    left: -38px;
+  }
+
+  .weixin-tip {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    filter: alpha(opacity=80);
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+  }
+
+  .weixin-tip p {
+    text-align: center;
+    margin-top: 10%;
+    padding: 0 5%;
+  }
+
+  .img1 {
+    filter: alpha(opacity=100);
+    -moz-opacity: 0.4;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;
+  }
+
+
+</style>

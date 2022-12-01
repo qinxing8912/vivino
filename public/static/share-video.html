@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:content="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content:="width=device-width,initial-scale=1.0,maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title>视频分享</title>
+  <script src="js/vue.min.js"></script>
+  <script src="js/axios.min.js"></script>
+  <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+  <script src="https://cdn.bootcss.com/vConsole/3.3.4/vconsole.min.js"></script>
+  <script src="https://jic.talkingdata.com/app/h5/v1?appid=46831FAB11DE436FB3A6EF6FEF8E6C05&vn=sharev1.0&vc=1.0.1"></script>
+  <link rel="preconnect" href="https://fonts.proxy.ustclug.org">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.proxy.ustclug.org/css2?family=Noto+Sans+SC&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+  <div class="video-play">
+    <div style="height: 100%;width: 100%">
+      <video
+        id="share-video"
+        webkit-playsinline="true"
+        playsinline="true"
+        width="100%" height="100%"
+        loop
+        class="my-video"
+        :poster="posterUrl"
+        :src="videoUrl">
+      </video>
+    </div>
+  </div>
+  <div class="app-download" @click="downloadApp">
+    <div style="width: 10%;display: flex;justify-content: flex-start;padding: 10px 0 10px 20px;">
+      <div class="app-logo">
+        <img src="img/share/share-app.png">
+      </div>
+    </div>
+    <div class="app-desc" style="padding: 10px 0;">
+      <div class="desc-title">唯唯诺APP</div>
+      <div class="desc-info">全球首屈一指的葡萄酒识别应用</div>
+    </div>
+    <div style="width: 20%;padding: 10px 20px 10px 0;">
+      <div class="download">
+        下载APP
+      </div>
+    </div>
+  </div>
+  <div class="weixin-tip" @click="closeMask">
+    <div style="color: #FFFFFF;font-size: 2.5vh; height: 100px;margin-top: 50%">1、点击右上角&nbsp&nbsp&nbsp<strong>···</strong></div>
+    <div style="color: #FFFFFF;font-size: 2.5vh;font-weight: 400;height: 100px">2、屏幕下方选择&nbsp在默认浏览器中打开&nbsp</div>
+  </div>
+</div>
+<script>
+  var vConsole = new VConsole()
+  new Vue({
+    el: '.container', //el用于指定当前Vue实例为哪个容器服务，值通常为选择器字符串。
+    data: { //data中用于存储数据，数据供el所指定的容器去使用。
+      videoUrl: '',
+      posterUrl: '',
+      videoId: ''
+    },
+    methods: {
+      getWechatInfo(item) {
+        let data = new FormData()
+        data.append('url', window.location.href)
+        // let requestUrl = this.$common.commonRequestUrl + 'getWxAppConfig'
+        let requestUrl = 'https://www.vivino.cc/app-api/appapi/web/getWxAppConfig'
+        let requestUrlDev = 'http://dev.vivino.cc/app-api/appapi/web/getWxAppConfig'
+        axios({
+          method: 'post',
+          url: requestUrlDev,
+          data: data
+        }).then(res => {
+          if (res.data.msg === 'success') {
+            console.log(JSON.stringify(res.data.data))
+            wx.config({
+              debug: false,
+              appId: res.data.data.appId,
+              timestamp: res.data.data.timestamp,
+              nonceStr: res.data.data.nonceStr,
+              signature: res.data.data.signature,
+              jsApiList: ['getLocation', 'updateAppMessageShareData', 'updateTimelineShareData']
+            })
+            wx.ready(function () {
+              wx.checkJsApi({
+                jsApiList: [
+                  'getLocation',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData'
+                ], // 需要检测的 JS 接口列表，所有 JS 接口列表见附录2,
+                success: function (res) {
+                  console.log('wxJsApi success:', res)
+                },
+                fail: (err) => {
+                  console.log('wxJsApi fail:', err)
+                }
+              })
+              // config信息验证后会执行 ready 方法，所有接口调用都必须在 config 接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在 ready 函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在 ready 函数中。
+            })
+            wx.ready(function () { // 需在用户可能点击分享按钮前就先调用
+              console.log(item)
+              wx.updateAppMessageShareData({
+                title: item.content, // 分享标题
+                desc: item.userName, // 分享描述
+                link: window.location.href,
+                imgUrl: item.posterUrl, // 分享图标
+                success: function () {
+                  // 设置成功
+                  console.log('分享成功')
+                }
+              })
+            })
+            wx.ready(function () {
+              console.log(item)
+              wx.updateTimelineShareData({
+                title: item.content, // 分享标题
+                desc: item.userName, // 分享描述
+                link: window.location.href,
+                imgUrl: item.posterUrl, // 分享图标
+                success: function () {
+                  // 设置成功
+                  console.log('分享成功')
+                }
+              })
+            })
+          }
+        })
+      },
+      closeMask(){
+        var box = document.getElementsByClassName("weixin-tip")[0]
+        box.style.display="none"
+      },
+      initVideo () {
+        const video = document.querySelector('.my-video')
+        // isweixin
+        var wmu = window.navigator.userAgent
+        var ua = wmu.toLowerCase()
+        var isAndroid = wmu.indexOf('Android') > -1 || wmu.indexOf('Adr') > -1// android终端
+        var isiOS = !!wmu.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)// ios终端
+        // video.setAttribute('controls', 'controls')
+        // video.setAttribute('autoplay', 'autoplay')
+        // eslint-disable-next-line
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+          if (isiOS){
+            video.setAttribute('preload', 'auto')
+            video.setAttribute('controls', 'controls')
+          }else {
+            video.setAttribute('controls', 'controls')
+            video.setAttribute('autoplay', 'autoplay')
+          }
+        } else {
+          video.setAttribute('autoplay', 'autoplay')
+          video.setAttribute('controls', 'controls')
+          console.log(video)
+        }
+      },
+      // 判断访问终端
+      downloadApp () {
+        // eslint-disable-next-line one-var
+        const u = navigator.userAgent
+        const isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/) // ios终端
+        const urls = {
+          'android': 'https://vivino-wines.oss-cn-shanghai.aliyuncs.com/app/vivinocn-app-release.apk',
+          'ios': 'https://apps.apple.com/cn/app/%E5%94%AF%E5%94%AF%E8%AF%BA/id1626033731'
+        }
+        if (isiOS) {
+          window.location.href = urls.ios
+          return
+        }
+        // isweixin
+        var ua = window.navigator.userAgent.toLowerCase()
+        var box = document.getElementsByClassName('weixin-tip')[0]
+        // eslint-disable-next-line
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+          box.style.display = 'flex'
+        }else {
+          window.location.href = urls.android
+        }
+      },
+      getURLString(name, url) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = url.substr(1).match(reg);
+        if (r != null) {
+          return decodeURIComponent(r[2]);
+        }
+        return null;
+      },
+      getData() {
+        var url = window.location.search
+        this.videoFileUUID = this.getURLString('videoFileUUID', url)
+        this.videoId = this.getURLString('videoId', url)
+        // 本地测试
+        // var requestUrl = 'http://101.35.40.167/app-api/appapi/web/getVideoInfoByVideoId?videoId=' + this.videoId;
+        // 线上
+        var requestUrlOld = 'https://www.vivino.cc/app-api/appapi/web/getVideoInfoByVideoId'
+        var requestUrl = 'https://www.vivino.cc/app-api/appapi/web/getVideoInfoById'
+        var requestUrlDev = 'http://dev.vivino.cc/app-api/appapi/web/getVideoInfoById'
+        var requestUrlDevOld = 'http://dev.vivino.cc/app-api/appapi/web/getVideoInfoByVideoId'
+        if (this.videoId){
+          axios.get(requestUrlDev,{params:{id:this.videoId},headers:{'device-id': Cookies.get('deviceIdVideo')}}).then(res => {
+            console.log(res.data)
+            if (res.data.msg === 'success') {
+              this.videoUrl = res.data.data.playInfoList[0].playURL
+              this.posterUrl = res.data.data.videoBase.coverURL
+              let data = {
+                content: res.data.data.content?res.data.data.content:'',
+                userName: res.data.data.username?'@'+res.data.data.username:'',
+                posterUrl: this.posterUrl
+              }
+              this.getWechatInfo(data)
+            }
+          });
+        }else {
+          axios.get(requestUrlDevOld,{params:{videoId:this.videoFileUUID},headers:{'device-id': Cookies.get('deviceIdVideo')}}).then(res => {
+            console.log(res.data)
+            if (res.data.msg === 'success') {
+              this.videoUrl = res.data.data.playInfoList[0].playURL
+              this.posterUrl = res.data.data.videoBase.coverURL
+              let data = {
+                  content: '视频分享',
+                  userName: '',
+                  posterUrl: this.posterUrl
+              }
+              this.getWechatInfo(data)
+            }
+          });
+        }
+
+      },
+    },
+    beforeCreate() {
+      let time = new Date().getTime()
+      let str = md5(time)
+      if (Cookies.get('deviceIdVideo')){
+        return;
+      }else {
+        Cookies.set('deviceIdVideo', str);
+      }
+    },
+    created() {
+      this.getData()
+    },
+    mounted() {
+      this.initVideo()
+    }
+  })
+</script>
+</body>
+</html>
+<style>
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-play {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+  }
+
+  .my-video {
+    /*height: 100%;*/
+    /*object-fit: fill; */
+    background: black;
+  }
+
+  .app-download {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: rgba(27, 27, 27, 0.8);
+  }
+
+  .app-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .app-desc {
+    width: 70%;
+    margin-left: 10px;
+  }
+
+  .desc-title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: 'Source Han Sans CN';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 1.8rem;
+    /* identical to box height, or 143% */
+    text-align: center;
+    /* 白色 #FFFFFF */
+    color: #FFFFFF;
+  }
+
+  .desc-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: 'Source Han Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.5rem;
+    /* identical to box height, or 150% */
+    text-align: center;
+    /* 正文 辅助文字 #A8A3A2 */
+    color: #A8A3A2;
+  }
+
+  .download {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 4px 12px;
+    /* 品牌色 APP应用红 #B81728 */
+    background: #B81728;
+    border-radius: 32px;
+    font-family: 'Source Han Sans CN';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.8rem;
+    line-height: 20px;
+    /* identical to box height, or 143% */
+    text-align: center;
+    /* 白色 #FFFFFF */
+    color: #FFFFFF;
+    height: 3rem;
+    padding: 0.5rem 1rem;
+  }
+  .weixin-tip {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    filter: alpha(opacity = 80);
+    height: 100%;
+    width: 100%;
+    z-index: 100;
+  }
+
+  .weixin-tip p {
+    text-align: center;
+    margin-top: 10%;
+    padding: 0 5%;
+  }
+</style>
