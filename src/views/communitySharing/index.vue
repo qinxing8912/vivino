@@ -62,7 +62,7 @@
                 <div class="ip">{{ userInfo.commentDate }} {{ userInfo.userIpAddress }}</div>
             </div>
             <div class="uesrBack van-safe-area-bottom">
-                <div class="Uinput"><input type="text" placeholder="留下你的精彩评论吧" @blur="openMask"></div>
+                <div class="Uinput"><input type="text" placeholder="留下你的精彩评论吧" disabled></div>
                 <div class="reply">
                     <img class="logog" alt src="@/assets/communitySharing/menu_message.svg" width="125" height="125">
                     <span>{{ userInfo.replyCount > 999 ? '999+' : userInfo.replyCount }}</span>
