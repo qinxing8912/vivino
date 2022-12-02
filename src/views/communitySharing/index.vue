@@ -27,7 +27,12 @@
             </div>
             <div class="article">
                 <h3 class="Atitle">{{ userInfo.title }}</h3>
-                <div class="Acontent">{{ userInfo.comment }}</div>
+                <div class="Acontent" v-if="(userInfo.comment!==''&&userInfo.comment!==null&&userInfo.comment!==undefined)">{{ userInfo.comment }}</div>
+                <template v-else-if="(userInfo.descList.length>0)">
+                    <div class="Acontent" v-for="item of userInfo.descList">
+                        <p>{{(item.title+'：'+item.content)}}</p>
+                    </div>
+                </template>
             </div>
             <div class="wine" v-if="(userInfo.wine !== '' && userInfo.wine.id !== null)">
                 <div class="Winfo">
