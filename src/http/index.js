@@ -3,13 +3,13 @@ import axios from 'axios'
 import { Toast } from 'vant';
 import 'vant/es/toast/style';
 
-//export const fileAddress = 'http://dev.vivino.cc/api/files/sc/find-by-uuid?uuid=' //测试
-export const fileAddress = 'https://api.vivino.cc/api/files/sc/find-by-uuid?uuid=' //生产
+export const fileAddress = 'http://dev.vivino.cc/api/files/sc/find-by-uuid?uuid=' //测试
+// export const fileAddress = 'https://api.vivino.cc/api/files/sc/find-by-uuid?uuid=' //生产
 //创建axios的一个实例
 const instance = axios.create({
-    //baseURL: "", //开发
+    baseURL: "", //开发
     //baseURL: "http://dev.vivino.cc/", //测试
-    baseURL: "https://www.vivino.cc/", //生产
+    // baseURL: "https://www.vivino.cc/", //生产
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json;charset=UTF-8;'

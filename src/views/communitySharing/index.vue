@@ -586,13 +586,13 @@ function inApp() {
 
 .appOpen span {
     display: inline-block;
-    width: calc(var(--vw)*120);
-    height: calc(var(--vw)*36);
-    line-height: calc(var(--vw)*36);
+    width: calc(var(--vw)*117);
+    height: calc(var(--vw)*44);
+    line-height: calc(var(--vw)*44);
     text-align: center;
     color: #fff;
     font-size: calc(var(--vw)*14);
-    background-color: #B81728;
+    background-color: #000000;
     border-radius: calc(var(--vw)*32);
 }
 
