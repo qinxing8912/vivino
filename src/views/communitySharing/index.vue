@@ -28,7 +28,7 @@
             <div class="article">
                 <h3 class="Atitle">{{ userInfo.title }}</h3>
                 <div class="Acontent" v-if="(userInfo.comment!==''&&userInfo.comment!==null&&userInfo.comment!==undefined)">{{ userInfo.comment }}</div>
-                <template v-else-if="(userInfo.descList.length>0)">
+                <template v-else-if="(userInfo.comment==''||userInfo.comment==null||userInfo.comment==undefined)&&(userInfo.descList.length>0)">
                     <div class="Acontent" v-for="item of userInfo.descList">
                         <p>{{(item.title+'：'+item.content)}}</p>
                     </div>
@@ -483,7 +483,7 @@ function inApp() {
     margin: calc(var(--vw)*4) calc(var(--vw)*12);
     border: 2px solid #FFFFFF;
     border-radius: calc(var(--vw)*8);
-    filter: drop-shadow(calc(var(--vw)*0) calc(var(--vw)*-1) calc(var(--vw)*4) rgba(27, 27, 27, 0.1)) drop-shadow(calc(var(--vw)*0) calc(var(--vw)*1) calc(var(--vw)*1) rgba(27, 27, 27, 0.1));
+    /* filter: drop-shadow(calc(var(--vw)*0) calc(var(--vw)*-1) calc(var(--vw)*4) rgba(27, 27, 27, 0.1)) drop-shadow(calc(var(--vw)*0) calc(var(--vw)*1) calc(var(--vw)*1) rgba(27, 27, 27, 0.1)); */
 }
 
 .wine .Wimg img {
