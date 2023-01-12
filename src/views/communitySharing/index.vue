@@ -323,8 +323,8 @@ function inApp() {
 
 .suckTop .Sright {
     width: calc(var(--vw)*80);
-    height: calc(var(--vw)*20);
-    line-height: calc(var(--vw)*20);
+    height: calc(var(--vw)*30);
+    line-height: calc(var(--vw)*30);
     text-align: center;
     background-color: #B81728;
     border-radius: calc(var(--vw)*32);
