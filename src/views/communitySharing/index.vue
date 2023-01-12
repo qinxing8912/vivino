@@ -188,7 +188,7 @@ function getParameter() {
         for (let i = 0; i < strs.length; i++) {
             obj[strs[i].split('=')[0]] = strs[i].split('=')[1]
         }
-        console.log(obj);
+        // console.log(obj);
         urlParameter.value = obj;
         // return obj;
         getUser(obj.gatherId, obj.reqType, obj.userUUID)
@@ -203,14 +203,13 @@ function getUser(id, type, uuid) {
         userUUID: uuid
     }
     _get(api.queryCommunityCommonInfoWeb, data).then((res) => {
-        console.log(res);
+        // console.log(res);
         if (res.code === 200) {
             // 截取日期 月日
             res.data.commentDate = res.data.commentDate.substring(5);
             // 转为数字并保留一位小数
-            // res.data.wine.rate = Number(res.data.wine.rate);
+            res.data.wine.rate = parseFloat(res.data.wine.rate);
             userInfo.value = res.data;
-
              // 调用分享
             // console.log(fileAddress+res.data.fileList[0].uuid);
             // 判断是否有标题，

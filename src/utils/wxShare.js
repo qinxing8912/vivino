@@ -7,7 +7,7 @@ const wxShare = async function (title, desc, link, img) {
     let data = new FormData()
     data.append('url',link)
     axios({ method: 'post', url: api.getWxAppConfig, data: data }).then(res => {
-        console.log(res.data);
+        // console.log(res.data);
         if (res.data.code === 0 && res.data.msg === 'success') {
             // 注入权限验证配置
             wx.config({
